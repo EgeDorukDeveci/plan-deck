@@ -25,8 +25,9 @@ function dataFile() {
 }
 
 function codexCommand() {
-  if (process.env.DECK_CODEX_BIN) return process.env.DECK_CODEX_BIN;
-  if (process.env.CODEX_CLI_PATH) return process.env.CODEX_CLI_PATH;
+  const configuredCandidates = [process.env.DECK_CODEX_BIN, process.env.CODEX_CLI_PATH].filter(Boolean);
+  const configuredCommand = configuredCandidates.find(candidate => !path.isAbsolute(candidate) || fs.existsSync(candidate));
+  if (configuredCommand) return configuredCommand;
 
   if (process.platform === 'win32') {
     const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
