@@ -1,0 +1,9 @@
+node_modules/
+.zed/
+.DS_Store
+Thumbs.db
+Yeni Metin Belgesi.txt
+
+# Local Electron data and Codex runtime leftovers
+deck-data.json
+*.log

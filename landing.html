@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>Deck — a personal card catalog</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="landing.css">
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav class="lp-nav">
+  <a href="index.html" class="lp-brand">
+    Deck <span class="lp-brand-sub">Catalog</span>
+  </a>
+  <div class="lp-nav-right">
+    <button class="theme-toggle" id="theme-toggle" title="Toggle day / night" aria-label="Toggle theme">☾</button>
+    <a href="index.html" class="lp-cta">Open Deck →</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="lp-hero">
+  <div class="lp-hero-left">
+    <span class="lp-overline">Idea · Plan · Task · Note</span>
+    <h1 class="lp-h1">A card catalog for everything in your head.</h1>
+    <p class="lp-p">File a thought in seconds. Find it again by type, tag, or drawer. No account, no sync, entirely yours, on the web or as a desktop app.</p>
+    <div class="lp-actions">
+      <a href="index.html" class="lp-btn-primary">Open Deck</a>
+      <span class="lp-secondary">Free. Offline. Nothing to install to try it.</span>
+    </div>
+  </div>
+
+  <div class="lp-hero-right">
+    <div class="lp-desk-frame">
+      <!-- Card 1: IDEA -->
+      <div class="cat-card" style="--r:-0.4deg">
+        <div class="cat-head">
+          <span class="cat-stamp" data-t="idea">IDEA</span>
+        </div>
+        <div class="cat-body">Rethink the onboarding flow, first-time users shouldn't need a tour. <span class="tag-ink">#ux</span> <span class="tag-ink">#product</span></div>
+        <div class="cat-foot">
+          <div class="cat-tags">
+            <span class="cat-tag">#ux</span>
+            <span class="cat-tag">#product</span>
+          </div>
+          <div class="cat-meta"><span class="cat-num">No. 041</span></div>
+        </div>
+      </div>
+
+      <!-- Card 2: TASK (done) -->
+      <div class="cat-card" style="--r:0.5deg">
+        <div class="cat-head">
+          <span class="cat-stamp" data-t="task">TASK</span>
+        </div>
+        <div class="cat-body is-done">Set up the local dev environment</div>
+        <div class="cat-foot">
+          <div class="cat-tags"></div>
+          <div class="cat-meta"><span class="cat-num">No. 038</span></div>
+        </div>
+      </div>
+
+      <!-- Card 3: PLAN -->
+      <div class="cat-card" style="--r:-0.2deg">
+        <div class="cat-head">
+          <span class="cat-stamp" data-t="plan">PLAN</span>
+        </div>
+        <div class="cat-body">Q4 focus areas:
+— Ship the redesign
+— Document the API
+— Begin accessibility audit</div>
+        <div class="cat-foot">
+          <div class="cat-tags"></div>
+          <div class="cat-meta"><span class="cat-num">No. 044</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TYPES ═══════════════ -->
+<section class="lp-types">
+  <div class="lp-types-head">
+    <h2>Four types. One drawer system.</h2>
+    <p>Pick the type after you've written. The thought comes first.</p>
+  </div>
+  <div class="lp-types-grid">
+    <div class="lp-type-col">
+      <span class="cat-stamp" data-t="idea">IDEA</span>
+      <p>Hunches, sparks, what-ifs. The unformed thought that needs to exist somewhere.</p>
+    </div>
+    <div class="lp-type-col">
+      <span class="cat-stamp" data-t="plan">PLAN</span>
+      <p>Structured intentions. Goals, projects, and outlines that need a shape.</p>
+    </div>
+    <div class="lp-type-col">
+      <span class="cat-stamp" data-t="task">TASK</span>
+      <p>Things to do. Mark them done right there on the card.</p>
+    </div>
+    <div class="lp-type-col">
+      <span class="cat-stamp" data-t="note">NOTE</span>
+      <p>Context and reference. What you need to remember, not act on.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FEATURE: CAPTURE ═══════════════ -->
+<section class="lp-feature">
+  <div class="lp-feature-text">
+    <h2>Type first, sort later.</h2>
+    <p class="lp-feat-p">The capture card sits at the top of the stack, always open, always focused. Write the thought before it disappears, pick the type after.</p>
+    <p class="lp-feat-hint">Press ⌘↵ to file it. That's the whole workflow.</p>
+  </div>
+  <div class="lp-feature-demo">
+    <div class="lp-demo-capture capture-card" style="position:relative;">
+      <div class="stamp-row">
+        <span class="stamp-btn active" data-t="idea">IDEA</span>
+        <span class="stamp-btn" data-t="plan">PLAN</span>
+        <span class="stamp-btn" data-t="task">TASK</span>
+        <span class="stamp-btn" data-t="note">NOTE</span>
+      </div>
+      <div class="capture-field" style="min-height:64px;">Rethink how the <span class="tag-ink">#onboarding</span> works, users shouldn't need a tutorial to get started</div>
+      <div class="capture-bar">
+        <span class="capture-hint">1–4 type · ⌘↵ file</span>
+        <span class="file-btn" style="pointer-events:none;">File it <kbd>⌘↵</kbd></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SHORTCUTS ═══════════════ -->
+<div class="lp-shortcuts">
+  <div class="lp-shortcuts-inner">
+    <div class="lp-shortcut"><span class="lp-kbd">⌘↵</span><span class="lp-shortcut-label">File the card</span></div>
+    <div class="lp-shortcut"><span class="lp-kbd">⌘K</span><span class="lp-shortcut-label">Search</span></div>
+    <div class="lp-shortcut"><span class="lp-kbd">⌘N</span><span class="lp-shortcut-label">Focus capture</span></div>
+    <div class="lp-shortcut"><span class="lp-kbd">1–4</span><span class="lp-shortcut-label">Switch type</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════ FEATURE: TAGS ═══════════════ -->
+<section class="lp-feature reversed">
+  <div class="lp-feature-text">
+    <h2>Your #hashtags become filters.</h2>
+    <p class="lp-feat-p">Write #tags inline as you capture. Click any tag on any card to instantly filter the whole catalog.</p>
+    <p class="lp-feat-hint">No folder hierarchies. No tag manager. Just write.</p>
+  </div>
+  <div class="lp-feature-demo">
+    <div class="lp-tag-cloud">
+      <span class="lp-pill active">#ux</span>
+      <span class="lp-pill active">#product</span>
+      <span class="lp-pill semi">#priority</span>
+      <span class="lp-pill semi">#dev</span>
+      <span class="lp-pill">#design</span>
+      <span class="lp-pill">#onboarding</span>
+      <span class="lp-pill semi">#api</span>
+      <span class="lp-pill">#q4</span>
+      <span class="lp-pill">#accessibility</span>
+      <span class="lp-pill active">#research</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FINAL CTA ═══════════════ -->
+<section class="lp-final">
+  <h2>Your cards are already waiting to be filed.</h2>
+  <p>No account. No subscription. No cloud sync. Everything stays on your machine, whether that's a browser tab or an installed desktop app.</p>
+  <a href="index.html" class="lp-btn-primary">Open Deck →</a>
+  <span class="lp-final-sub">Built with plain HTML, CSS, and localStorage.</span>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="lp-footer">
+  <a href="index.html" class="lp-footer-brand">Deck</a>
+  <span class="lp-footer-tag">A personal card catalog</span>
+  <span class="lp-footer-right"></span>
+</footer>
+
+<script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>Deck — a personal card catalog</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button class="rail-open-btn" id="rail-open-btn" aria-label="Open drawers">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>
+</button>
+<div class="rail-backdrop" id="rail-backdrop"></div>
+
+<div class="room">
+
+  <!-- ═══════════════ RAIL ═══════════════ -->
+  <aside class="rail">
+    <div class="rail-brand">
+      <div class="brand">
+        Deck
+        <span class="brand-sub">Catalog</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" title="Toggle day / night" aria-label="Toggle theme">☾</button>
+    </div>
+
+    <div class="rail-scroll">
+      <div>
+        <button class="tab active" data-col="all" onclick="setCol('all')">
+          <span class="tab-chip" style="background:var(--ink-3)"></span>
+          <span class="tab-name">All cards</span>
+          <span class="tab-count" id="cnt-all">0</span>
+        </button>
+        <button class="tab" data-col="pinned" onclick="setCol('pinned')">
+          <span class="tab-chip" style="background:var(--accent)"></span>
+          <span class="tab-name">Pinned</span>
+          <span class="tab-count" id="cnt-pinned">0</span>
+        </button>
+      </div>
+
+      <div class="rail-divider"></div>
+      <div class="agent-rail-section">
+        <div class="rail-label">Agent bridge</div>
+        <button class="tab agent-tab" id="studio-tab" data-view="studio" onclick="openPromptStudio()">
+          <span class="tab-chip" style="background:var(--accent)"></span>
+          <span class="tab-name">Prompt studio</span>
+          <span class="tab-count" id="cnt-projects">0</span>
+        </button>
+      </div>
+
+      <div class="rail-divider"></div>
+      <div id="col-tabs"></div>
+    </div>
+
+    <div class="rail-footer">
+      <button class="add-drawer-btn" id="add-col-btn" onclick="showColForm()">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+          <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        New drawer
+      </button>
+      <div class="drawer-form" id="new-col-form">
+        <input class="drawer-input" id="new-col-input" type="text" placeholder="Drawer name" maxlength="32" />
+        <div class="drawer-actions">
+          <button class="btn btn-fill" onclick="createCol()">Create</button>
+          <button class="btn btn-line" onclick="hideColForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ DESK ═══════════════ -->
+  <main class="desk">
+
+    <header class="desk-header">
+      <h1 class="desk-title" id="view-title">All cards</h1>
+      <span class="desk-count" id="view-count"></span>
+
+      <button class="desk-mode-btn" id="studio-head-btn" onclick="openPromptStudio()">
+        <span class="desk-mode-mark" aria-hidden="true">↗</span>
+        <span id="studio-head-label">Prompt studio</span>
+      </button>
+
+      <div class="type-chip-row" id="type-filters">
+        <button class="type-chip" data-t="idea" onclick="toggleTF('idea')">IDEA</button>
+        <button class="type-chip" data-t="plan" onclick="toggleTF('plan')">PLAN</button>
+        <button class="type-chip" data-t="task" onclick="toggleTF('task')">TASK</button>
+        <button class="type-chip" data-t="note" onclick="toggleTF('note')">NOTE</button>
+      </div>
+
+      <div class="desk-search" id="desk-search">
+        <svg class="desk-search-ico" width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <input type="search" id="search-in" placeholder="Search the catalog…" aria-label="Search" autocomplete="off">
+      </div>
+    </header>
+
+    <!-- Capture zone -->
+    <section class="capture-zone" id="capture-view">
+      <div class="capture-stack">
+        <div class="stack-shadow s3"></div>
+        <div class="stack-shadow s2"></div>
+        <div class="capture-card">
+          <div class="stamp-row" id="type-row">
+            <button class="stamp-btn active" data-t="idea" onclick="setType('idea')">IDEA</button>
+            <button class="stamp-btn" data-t="plan" onclick="setType('plan')">PLAN</button>
+            <button class="stamp-btn" data-t="task" onclick="setType('task')">TASK</button>
+            <button class="stamp-btn" data-t="note" onclick="setType('note')">NOTE</button>
+          </div>
+
+          <textarea class="capture-field" id="capture-ta" placeholder="File a new card…" rows="3" aria-label="New card"></textarea>
+
+          <div class="capture-bar">
+            <div class="capture-bar-left">
+              <span class="capture-hint" id="cap-hint">1–4 type · ⌘↵ file</span>
+              <select class="cap-col-sel" id="cap-col" aria-label="File into drawer"></select>
+            </div>
+            <button class="file-btn" onclick="addNote()">File it <kbd id="file-kbd">⌘↵</kbd></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Active tag filter -->
+    <div class="active-tag-row" id="active-filters" hidden></div>
+
+    <!-- Catalog -->
+    <section class="catalog" id="catalog-view">
+      <div id="pinned-sec" hidden>
+        <p class="block-label">Pinned</p>
+        <div class="cat-grid" id="pinned-grid"></div>
+      </div>
+
+      <div id="regular-sec">
+        <div class="cat-grid" id="notes-grid"></div>
+      </div>
+
+      <div class="welcome" id="welcome-st" hidden>
+        <p class="welcome-title">Welcome to your catalog.</p>
+        <p class="welcome-sub">This is where ideas, plans, tasks, and notes get filed the moment you have them.</p>
+        <p class="welcome-sub">Write your first card above, pick a type, and press ⌘↵.</p>
+      </div>
+
+      <div class="empty-drawer" id="empty-st" hidden>
+        <div class="empty-glyph"></div>
+        <p class="empty-title" id="empty-title">Nothing here yet</p>
+        <p class="empty-sub" id="empty-sub">Write a card above and press ⌘↵ to file it.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════ PROMPT STUDIO ═══════════════ -->
+    <section class="studio-view" id="studio-view" hidden>
+      <div class="studio-intro">
+        <div class="studio-intro-copy">
+          <p class="studio-overline">AGENT BRIDGE · LOCAL WORKSPACE</p>
+          <h2>Turn a thought into a prompt your codebase can use.</h2>
+          <p class="studio-lede">Let a smaller model map the project, then let a stronger one shape your idea into a focused coding brief.</p>
+        </div>
+        <div class="studio-flow" aria-label="Prompt workflow">
+          <span><b>01</b> Context</span>
+          <span><b>02</b> Guide</span>
+          <span><b>03</b> Prompt</span>
+        </div>
+      </div>
+      <div id="studio-stage"></div>
+    </section>
+
+
+  </main>
+</div>
+
+<script src="theme.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "deck",
+  "version": "1.0.0",
+  "description": "Deck — a personal card catalog for ideas, plans, tasks, and notes.",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.0.0"
+  }
+}
