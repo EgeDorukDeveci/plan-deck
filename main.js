@@ -111,7 +111,6 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
     '--output-schema', schemaPath,
     '--output-last-message', outputPath,
     '-c', `model_reasoning_effort=${JSON.stringify(reasoning)}`,
-    '-',
   ];
 
   return new Promise((resolve, reject) => {
