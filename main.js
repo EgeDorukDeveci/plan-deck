@@ -27,7 +27,29 @@ function dataFile() {
 function codexCommand() {
   if (process.env.DECK_CODEX_BIN) return process.env.DECK_CODEX_BIN;
   if (process.env.CODEX_CLI_PATH) return process.env.CODEX_CLI_PATH;
+
+  if (process.platform === 'win32') {
+    const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
+    const appData = process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming');
+    const installedCandidates = [
+      path.join(localAppData, 'pnpm', 'bin', 'codex.CMD'),
+      path.join(appData, 'npm', 'codex.cmd'),
+      path.join(localAppData, 'npm', 'codex.cmd'),
+    ];
+    const installedPath = installedCandidates.find(candidate => fs.existsSync(candidate));
+    if (installedPath) return installedPath;
+  }
+
   return process.platform === 'win32' ? 'codex.cmd' : 'codex';
+}
+
+function codexSpawnOptions(command, extra = {}) {
+  return {
+    ...extra,
+    env: { ...process.env },
+    windowsHide: true,
+    shell: process.platform === 'win32' && /\.(cmd|bat)$/i.test(command),
+  };
 }
 
 function safeSend(sender, channel, payload) {
@@ -92,12 +114,11 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
   ];
 
   return new Promise((resolve, reject) => {
-    const child = spawn(codexCommand(), args, {
+    const command = codexCommand();
+    const child = spawn(command, args, codexSpawnOptions(command, {
       cwd: rootPath,
-      env: { ...process.env },
-      windowsHide: true,
       stdio: ['ignore', 'pipe', 'pipe'],
-    });
+    }));
 
     const run = { child, tempDir, settled: false, timer: null, reject };
     activeRuns.set(runId, run);
@@ -348,21 +369,20 @@ ipcMain.handle('deck:save', (_event, json) => {
 ipcMain.handle('deck:data-path', () => dataFile());
 
 ipcMain.handle('codex:check', () => new Promise(resolve => {
-  const child = spawn(codexCommand(), ['--version'], {
-    env: { ...process.env },
-    windowsHide: true,
+  const command = codexCommand();
+  const child = spawn(command, ['--version'], codexSpawnOptions(command, {
     stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  }));
   let output = '';
   let error = '';
   child.stdout.on('data', chunk => { output += String(chunk); });
   child.stderr.on('data', chunk => { error += String(chunk); });
-  child.on('error', err => resolve({ available: false, command: codexCommand(), error: normalizeError(err) }));
+  child.on('error', err => resolve({ available: false, command, error: normalizeError(err) }));
   child.on('close', code => resolve({
     available: code === 0,
-    command: codexCommand(),
+    command,
     version: (output || error).trim(),
-    error: code === 0 ? null : normalizeError(new Error(error.trim() || `Codex exited with code ${code}.`)),
+    error: code === 0 ? null : normalizeError(new Error(error.trim() || 'Codex exited with code ' + code + '.')),
   }));
 }));
 
