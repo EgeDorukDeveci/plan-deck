@@ -111,14 +111,14 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
     '--output-schema', schemaPath,
     '--output-last-message', outputPath,
     '-c', `model_reasoning_effort=${JSON.stringify(reasoning)}`,
-    prompt,
+    '-',
   ];
 
   return new Promise((resolve, reject) => {
     const command = codexCommand();
     const child = spawn(command, args, codexSpawnOptions(command, {
       cwd: rootPath,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['pipe', 'pipe', 'pipe'],
     }));
 
     const run = { child, tempDir, settled: false, timer: null, reject };
@@ -177,6 +177,8 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
         finish(new Error(normalizeError(err)));
       }
     });
+
+    child.stdin.end(prompt, 'utf8');
   });
 }
 
