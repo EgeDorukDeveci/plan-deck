@@ -40,13 +40,13 @@ function strokeRect(x0, y0, w, h, thickness, [r, g, b, a = 255], radius = 0) {
   fillRect(x0 + w - thickness, y0, thickness, h, [r, g, b, a], 0);
 }
 
-// ── Palette (approx sRGB from the app's oklch tokens) ──────
-const DESK_2  = [216, 205, 184];
-const PAPER   = [248, 244, 236];
-const RULE    = [178, 164, 138];
-const ACCENT  = [138, 50, 38];   // oxblood
-const INK_1   = [46, 38, 33];
-const INK_2   = [130, 116, 100];
+// ── Palette matches Deck's current warm-neutral interface ───
+const DESK_2  = [241, 241, 237];
+const PAPER   = [251, 251, 248];
+const RULE    = [212, 212, 204];
+const ACCENT  = [111, 82, 199];  // violet
+const INK_1   = [34, 36, 33];
+const INK_2   = [112, 115, 107];
 
 // ── Draw: back card (offset), front card, stamp bar, text lines ──
 fillRect(66, 82, 152, 138, DESK_2, 14);

@@ -7,3 +7,8 @@ Yeni Metin Belgesi.txt
 # Local Electron data and Codex runtime leftovers
 deck-data.json
 *.log
+
+# Temporary Electron packaging and executable inspection output
+.exe-audit-*/
+builder-effective-config.yaml
+win-unpacked/

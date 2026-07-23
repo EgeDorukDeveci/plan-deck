@@ -2,12 +2,33 @@
   "name": "deck",
   "version": "1.0.0",
   "description": "Deck — a personal card catalog for ideas, plans, tasks, and notes.",
+  "author": "EgeDorukDeveci",
   "main": "main.js",
   "private": true,
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package:win": "electron-builder --win portable --x64"
   },
   "devDependencies": {
-    "electron": "^31.0.0"
+    "electron": "^31.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.egedorukdeveci.plandeck",
+    "productName": "Plan Deck",
+    "artifactName": "${productName}.exe",
+    "directories": {
+      "output": "."
+    },
+    "files": [
+      "**/*",
+      "!Plan Deck.exe",
+      "!.exe-audit-*/**",
+      "!win-unpacked/**"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "build/icon.ico"
+    }
   }
 }

@@ -452,7 +452,7 @@ function createWindow() {
     height: 900,
     minWidth: 900,
     minHeight: 620,
-    backgroundColor: '#e9e3d6',
+    backgroundColor: '#f7f7f4',
     autoHideMenuBar: true,
     icon: path.join(__dirname, 'build', 'icon.ico'),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
@@ -463,7 +463,8 @@ function createWindow() {
     },
   });
 
-  win.loadFile('index.html');
+  // Landing first, user clicks "Open Deck" to reach the catalog
+  win.loadFile('landing.html');
 }
 
 app.whenReady().then(createWindow);

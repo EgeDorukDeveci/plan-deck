@@ -8,14 +8,15 @@ Open `landing.html` for the introduction page, or go straight to `index.html` fo
 
 ## Run it as a desktop app
 
-The app has zero network dependencies (system fonts only, no CDN calls), so it's ready to wrap in Electron as-is.
+Deck runs locally. Its display, interface, and monospace fonts load from Google Fonts when a connection is available; matching system-font fallbacks are used otherwise.
 
 ```bash
 npm install
 npm start
+npm run package:win
 ```
 
-This opens Deck in its own native window via `main.js`. To package a distributable `.exe`/`.app`/`.AppImage`, add [`electron-builder`](https://www.electron.build/) or [`electron-forge`](https://www.electronjs.org/docs/latest/tutorial/tutorial-packaging) as a dev dependency and follow their packaging docs; `main.js` and `index.html` need no changes for either.
+`npm start` opens Deck in its own native window via `main.js`. `npm run package:win` creates the portable Windows executable at `Plan Deck.exe`.
 
 ## Files
 
