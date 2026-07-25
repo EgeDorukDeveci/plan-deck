@@ -11,6 +11,8 @@ const activeRuns = new Map();
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
 const MAX_FILES = 5000;
 const MAX_MANIFEST_CHARS = 180000;
+const MAX_FILE_CONTENT_CHARS = 8000;
+const MAX_CONTENT_BUDGET_CHARS = 100000;
 
 const IGNORED_DIRS = new Set([
   '.git', '.hg', '.svn', 'node_modules', 'vendor', 'dist', 'build',
@@ -272,6 +274,30 @@ function compactManifest(inventory) {
   return text.length > MAX_MANIFEST_CHARS ? `${text.slice(0, MAX_MANIFEST_CHARS)}\n[manifest truncated]` : text;
 }
 
+function compactFileContents(inventory) {
+  let budget = MAX_CONTENT_BUDGET_CHARS;
+  const root = inventory.rootPath;
+  const parts = [];
+
+  for (const file of inventory.includedFiles) {
+    if (budget <= 0) break;
+    const fullPath = path.join(root, file.path);
+    let content;
+    try {
+      content = fs.readFileSync(fullPath, 'utf8');
+    } catch (_) {
+      continue;
+    }
+    const trimmed = content.length > MAX_FILE_CONTENT_CHARS
+      ? content.slice(0, MAX_FILE_CONTENT_CHARS) + '\n... [file content truncated]'
+      : content;
+    budget -= trimmed.length + file.path.length + 20;
+    parts.push(`--- ${file.path} ---\n${trimmed}`);
+  }
+
+  return parts.join('\n\n');
+}
+
 const CONTEXT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -318,14 +344,22 @@ const PROMPT_SCHEMA = {
 };
 
 function contextPrompt(inventory) {
+  const manifest = compactManifest(inventory);
+  const contents = compactFileContents(inventory);
+
   return `You are Deck's read-only project context archivist.
 
-Before writing the JSON, use read-only shell commands to inspect the repository root and nested directories, then read relevant source code, configuration, and documentation files. The file inventory below is a security allowlist, not a substitute for reading the files. Produce a durable, factual context brief for a later coding-agent prompt. Do not modify files, run destructive commands, or reveal secret values. Do not open or quote sensitive files such as .env files, private keys, certificates, credentials, or secrets. Do not invent technologies, commands, architecture, or files: if something cannot be verified, put it in openQuestions.
+Read the repository files below and produce a durable, factual context brief for a later coding-agent prompt. Do not modify files, run destructive commands, or reveal secret values. Do not read or quote sensitive files such as .env files, private keys, certificates, credentials, or secrets.
+
+Analyze the actual source code, configuration, and documentation in the file contents below to extract technologies, architecture, entry points, key files, conventions, build commands, and risks. If the file contents are truncated, note that in openQuestions. Do not invent technologies, commands, or architecture: if something cannot be verified from the provided contents, put it in openQuestions.
 
 Return only the JSON object required by the supplied schema. Keep the summary compact but useful. Include exact relative paths for keyFiles and entryPoints, and exact commands only when they are present in the repository documentation or configuration.
 
 Project file inventory:
-${compactManifest(inventory)}`;
+${manifest}
+
+File contents:
+${contents}`;
 }
 
 function promptGenerationInput({ idea, context, guide, language }) {
