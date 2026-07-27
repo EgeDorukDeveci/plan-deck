@@ -163,6 +163,7 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
     }, 5 * 60 * 1000);
 
     child.on('error', err => finish(new Error(normalizeError(err))));
+    child.stdin.on('error', err => finish(new Error(normalizeError(err))));
     child.on('close', code => {
       if (run.settled) return;
       if (code !== 0) {

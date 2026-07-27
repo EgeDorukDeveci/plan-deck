@@ -44,3 +44,7 @@ test('context extraction defaults to Luna with high reasoning', () => {
   assert.match(source, /reasoning: payload\.reasoning \|\| 'high'/);
   assert.doesNotMatch(source, /payload\.model \|\| 'gpt-5\.4-mini'/);
 });
+
+test('Codex stdin errors settle the run instead of crashing Electron', () => {
+  assert.match(source, /child\.stdin\.on\('error', err => finish\(new Error\(normalizeError\(err\)\)\)\)/);
+});
