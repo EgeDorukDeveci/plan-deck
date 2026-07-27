@@ -16,14 +16,17 @@ const context = {
 };
 vm.runInNewContext(match[0].replace('\n\nfunction promptGenerationInput', ''), context);
 
-test('context prompt includes file contents for all nested directories', () => {
+test('context prompt produces an agent-ready technical brief', () => {
   const prompt = context.contextPrompt({ includedFiles: [] });
 
-  assert.match(prompt, /file contents below/i);
-  assert.match(prompt, /analyze the actual source code/i);
+  assert.match(prompt, /manifest and samples/i);
+  assert.match(prompt, /do not infer behavior from filenames alone/i);
   assert.match(prompt, /detailed, factual project context/i);
-  assert.match(prompt, /data flow/i);
-  assert.match(prompt, /responsibilities of important directories/i);
+  assert.match(prompt, /projectMap with exact relative paths/i);
+  assert.match(prompt, /read the complete contents/i);
+  assert.match(prompt, /projectMap/);
+  assert.match(prompt, /dataFlows/);
+  assert.match(prompt, /changeGuide/);
   assert.match(prompt, /--- src\/nested\/feature.js ---/);
 });
 
@@ -66,4 +69,16 @@ test('Codex CMD launchers bypass the shell for project paths with spaces', () =>
   assert.match(source, /function codexScript\(command\)/);
   assert.match(source, /spawn\('node\.exe', \[script, \.\.\.args\]/);
   assert.match(source, /spawnCodex\(command, args,/);
+});
+
+test('context schema requires structured agent-ready sections', () => {
+  for (const field of ['projectMap', 'systems', 'dataFlows', 'configuration', 'changeGuide', 'verification']) {
+    assert.match(source, new RegExp(`\\b${field}\\b`));
+  }
+});
+
+test('renderer preserves structured context sections', () => {
+  for (const field of ['projectMap', 'systems', 'dataFlows', 'configuration', 'changeGuide', 'verification']) {
+    assert.match(appSource, new RegExp(`\\b${field}:`));
+  }
 });

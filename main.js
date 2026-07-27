@@ -338,6 +338,74 @@ const CONTEXT_SCHEMA = {
     architecture: { type: 'string' },
     entryPoints: { type: 'array', items: { type: 'string' } },
     keyFiles: { type: 'array', items: { type: 'string' } },
+    projectMap: {
+      type: 'array',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: {
+          path: { type: 'string' }, kind: { type: 'string' }, purpose: { type: 'string' },
+          keySymbols: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['path', 'kind', 'purpose', 'keySymbols'],
+      },
+    },
+    systems: {
+      type: 'array',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: {
+          name: { type: 'string' }, purpose: { type: 'string' },
+          files: { type: 'array', items: { type: 'string' } },
+          dependencies: { type: 'array', items: { type: 'string' } },
+          boundaries: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['name', 'purpose', 'files', 'dependencies', 'boundaries'],
+      },
+    },
+    dataFlows: {
+      type: 'array',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: {
+          name: { type: 'string' }, trigger: { type: 'string' },
+          steps: { type: 'array', items: { type: 'string' } },
+          files: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['name', 'trigger', 'steps', 'files'],
+      },
+    },
+    configuration: {
+      type: 'array',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: {
+          path: { type: 'string' }, purpose: { type: 'string' },
+          keys: { type: 'array', items: { type: 'string' } },
+          effects: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['path', 'purpose', 'keys', 'effects'],
+      },
+    },
+    changeGuide: {
+      type: 'array',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: {
+          area: { type: 'string' }, likelyFiles: { type: 'array', items: { type: 'string' } },
+          risks: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['area', 'likelyFiles', 'risks'],
+      },
+    },
+    verification: {
+      type: 'object', additionalProperties: false,
+      properties: {
+        commands: { type: 'array', items: { type: 'string' } },
+        coverage: { type: 'string' },
+        gaps: { type: 'array', items: { type: 'string' } },
+      },
+      required: ['commands', 'coverage', 'gaps'],
+    },
     conventions: { type: 'array', items: { type: 'string' } },
     commands: {
       type: 'object',
@@ -356,6 +424,7 @@ const CONTEXT_SCHEMA = {
   },
   required: [
     'summary', 'technologies', 'architecture', 'entryPoints', 'keyFiles',
+    'projectMap', 'systems', 'dataFlows', 'configuration', 'changeGuide', 'verification',
     'conventions', 'commands', 'risks', 'openQuestions',
   ],
 };
@@ -380,11 +449,11 @@ function contextPrompt(inventory) {
 
   return `You are Deck's read-only project context archivist.
 
-Read the repository files below and produce a detailed, factual project context for a later coding-agent prompt. Explain the project's purpose, technologies, architecture, responsibilities of important directories and modules, data flow and integration boundaries, entry points, commands, conventions, and risks. Do not modify files, run destructive commands, or reveal secret values. Do not read or quote sensitive files such as .env files, private keys, certificates, credentials, or secrets.
+Read the repository files below and produce a detailed, factual project context for a later coding-agent prompt. Do not modify files, run destructive commands, or reveal secret values. Do not read or quote sensitive files such as .env files, private keys, certificates, credentials, or secrets.
 
-Analyze the actual source code, configuration, and documentation in the file contents below to extract technologies, architecture, entry points, key files, conventions, build commands, and risks. If the file contents are truncated, note that in openQuestions. Do not invent technologies, commands, or architecture: if something cannot be verified from the provided contents, put it in openQuestions.
+The manifest and samples are only a starting point. Before writing the JSON, use read-only shell tools to read the complete contents of entry points, configuration files, and files that implement the main systems. If a sampled file is marked as truncated, read the complete contents before using it for any fact. Do not infer behavior from filenames alone.
 
-Return only the JSON object required by the supplied schema. Keep the summary compact, but make architecture and conventions specific enough for a later agent to understand how the project works. Include exact relative paths for keyFiles and entryPoints, and exact commands only when they are present in the repository documentation or configuration.
+Return only the JSON object required by the supplied schema. Populate projectMap with exact relative paths, a concise purpose, and important exported symbols or responsibilities. Populate systems with cohesive runtime areas, their files, dependencies, and integration boundaries. Populate dataFlows with concrete triggers, ordered execution steps, and the exact files involved. Populate configuration with verified config files, keys, and runtime effects. Populate changeGuide with implementation areas, likely files, and risks. Populate verification with verified commands, known coverage, and gaps. Keep the summary compact, but make architecture and conventions specific enough for a later agent to understand how the project works. If a fact cannot be verified, use openQuestions instead of guessing.
 
 Project file inventory:
 ${manifest}

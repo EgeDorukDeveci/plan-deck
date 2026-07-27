@@ -453,6 +453,16 @@ function normalizeContext(context) {
     architecture: String(c.architecture || ''),
     entryPoints: Array.isArray(c.entryPoints) ? c.entryPoints : [],
     keyFiles: Array.isArray(c.keyFiles) ? c.keyFiles : [],
+    projectMap: Array.isArray(c.projectMap) ? c.projectMap : [],
+    systems: Array.isArray(c.systems) ? c.systems : [],
+    dataFlows: Array.isArray(c.dataFlows) ? c.dataFlows : [],
+    configuration: Array.isArray(c.configuration) ? c.configuration : [],
+    changeGuide: Array.isArray(c.changeGuide) ? c.changeGuide : [],
+    verification: {
+      commands: Array.isArray(c.verification?.commands) ? c.verification.commands : [],
+      coverage: String(c.verification?.coverage || ''),
+      gaps: Array.isArray(c.verification?.gaps) ? c.verification.gaps : [],
+    },
     conventions: Array.isArray(c.conventions) ? c.conventions : [],
     commands: {
       install: String(c.commands?.install || ''),
