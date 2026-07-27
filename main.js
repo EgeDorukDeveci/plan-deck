@@ -349,11 +349,11 @@ function contextPrompt(inventory) {
 
   return `You are Deck's read-only project context archivist.
 
-Read the repository files below and produce a durable, factual context brief for a later coding-agent prompt. Do not modify files, run destructive commands, or reveal secret values. Do not read or quote sensitive files such as .env files, private keys, certificates, credentials, or secrets.
+Read the repository files below and produce a detailed, factual project context for a later coding-agent prompt. Explain the project's purpose, technologies, architecture, responsibilities of important directories and modules, data flow and integration boundaries, entry points, commands, conventions, and risks. Do not modify files, run destructive commands, or reveal secret values. Do not read or quote sensitive files such as .env files, private keys, certificates, credentials, or secrets.
 
 Analyze the actual source code, configuration, and documentation in the file contents below to extract technologies, architecture, entry points, key files, conventions, build commands, and risks. If the file contents are truncated, note that in openQuestions. Do not invent technologies, commands, or architecture: if something cannot be verified from the provided contents, put it in openQuestions.
 
-Return only the JSON object required by the supplied schema. Keep the summary compact but useful. Include exact relative paths for keyFiles and entryPoints, and exact commands only when they are present in the repository documentation or configuration.
+Return only the JSON object required by the supplied schema. Keep the summary compact, but make architecture and conventions specific enough for a later agent to understand how the project works. Include exact relative paths for keyFiles and entryPoints, and exact commands only when they are present in the repository documentation or configuration.
 
 Project file inventory:
 ${manifest}
@@ -439,8 +439,8 @@ ipcMain.handle('codex:extract-context', async (event, payload = {}) => {
   const run = await runCodex({
     sender: event.sender,
     rootPath,
-    model: payload.model || 'gpt-5.4-mini',
-    reasoning: payload.reasoning || 'medium',
+    model: payload.model || 'gpt-5.6-luna',
+    reasoning: payload.reasoning || 'high',
     prompt: contextPrompt(inventory),
     schema: CONTEXT_SCHEMA,
   });

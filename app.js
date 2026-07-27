@@ -30,7 +30,7 @@ const S = {
 };
 
 const MODEL_CONFIG = {
-  context:  { model: 'gpt-5.4-mini', reasoning: 'medium' },
+  context:  { model: 'gpt-5.6-luna', reasoning: 'high' },
   prompt:   { model: 'gpt-5.6-luna', reasoning: 'high' },
 };
 

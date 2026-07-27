@@ -34,7 +34,7 @@ npm run package:win
 
 ## Prompt Studio
 
-Prompt Studio is available in the Electron app. Choose a project folder, review the files Deck will expose to Codex, and run the read-only context pass with `gpt-5.4-mini`. After approving the generated context, select a card and generate an agent-ready prompt with `gpt-5.6-luna` at high reasoning effort. The final prompt stays editable and can be copied to any coding agent; generated versions are saved under the source card.
+Prompt Studio is available in the Electron app. Choose a project folder, review the files Deck will expose to Codex, and run the read-only context pass with `gpt-5.6-luna` at high reasoning effort. After approving the generated context, select a card and generate an agent-ready prompt with `gpt-5.6-luna` at high reasoning effort. The final prompt stays editable and can be copied to any coding agent; generated versions are saved under the source card.
 
 The desktop app expects the `codex` CLI to be installed and logged in. If it is not on `PATH`, set `DECK_CODEX_BIN` to the executable path before starting Deck.
 
