@@ -69,6 +69,9 @@ function normalizeError(err, fallback = 'Codex could not complete the run.') {
   if (/login|auth|unauthorized|authentication/i.test(message)) {
     return 'Codex is not logged in. Run `codex login` in a terminal, then try again.';
   }
+  if (/requires a newer version of Codex/i.test(message) && /gpt-5\.6-luna/i.test(message)) {
+    return 'Codex CLI is too old for gpt-5.6-luna. Update Codex to the latest version, then try again.';
+  }
   return message;
 }
 
@@ -128,6 +131,7 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
 
     let stdout = '';
     let stderr = '';
+    let stdinError = null;
     const append = (target, chunk) => String(target + chunk).slice(-12000);
 
     child.stdout.on('data', chunk => {
@@ -163,12 +167,16 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
     }, 5 * 60 * 1000);
 
     child.on('error', err => finish(new Error(normalizeError(err))));
-    child.stdin.on('error', err => finish(new Error(normalizeError(err))));
+    child.stdin.on('error', err => { stdinError = err; });
     child.on('close', code => {
       if (run.settled) return;
       if (code !== 0) {
         const detail = stderr.trim() || stdout.trim();
         finish(new Error(normalizeError(new Error(detail || `Codex exited with code ${code}.`))));
+        return;
+      }
+      if (stdinError) {
+        finish(new Error(normalizeError(stdinError)));
         return;
       }
 

@@ -46,5 +46,18 @@ test('context extraction defaults to Luna with high reasoning', () => {
 });
 
 test('Codex stdin errors settle the run instead of crashing Electron', () => {
-  assert.match(source, /child\.stdin\.on\('error', err => finish\(new Error\(normalizeError\(err\)\)\)\)/);
+  assert.match(source, /child\.stdin\.on\('error', err => \{ stdinError = err; \}\)/);
+  assert.match(source, /if \(stdinError\) \{/);
+});
+
+const normalizeMatch = source.match(/function normalizeError\(err, fallback = 'Codex could not complete the run\.'\) \{[\s\S]*?\n\}\n\nfunction parseJsonOutput/);
+if (!normalizeMatch) throw new Error('Could not load normalizeError from main.js.');
+const errorContext = {};
+vm.runInNewContext(normalizeMatch[0].replace('\n\nfunction parseJsonOutput', ''), errorContext);
+
+test('Luna compatibility failures explain that Codex must be updated', () => {
+  const message = errorContext.normalizeError(new Error('The gpt-5.6-luna model requires a newer version of Codex.'));
+
+  assert.match(message, /update Codex/i);
+  assert.match(message, /gpt-5\.6-luna/);
 });
