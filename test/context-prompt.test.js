@@ -61,3 +61,9 @@ test('Luna compatibility failures explain that Codex must be updated', () => {
   assert.match(message, /update Codex/i);
   assert.match(message, /gpt-5\.6-luna/);
 });
+
+test('Codex CMD launchers bypass the shell for project paths with spaces', () => {
+  assert.match(source, /function codexScript\(command\)/);
+  assert.match(source, /spawn\('node\.exe', \[script, \.\.\.args\]/);
+  assert.match(source, /spawnCodex\(command, args,/);
+});

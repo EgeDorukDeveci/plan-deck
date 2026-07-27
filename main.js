@@ -55,6 +55,28 @@ function codexSpawnOptions(command, extra = {}) {
   };
 }
 
+function codexScript(command) {
+  if (process.platform !== 'win32' || !path.isAbsolute(command) || !/\.(cmd|bat)$/i.test(command)) return null;
+  try {
+    const launcher = fs.readFileSync(command, 'utf8');
+    const match = launcher.match(/"([^"]*?@openai[\\/]codex[\\/]bin[\\/]codex\.js)"/i);
+    if (!match) return null;
+    const scriptPath = match[1].replace(/%~dp0/ig, path.dirname(command) + path.sep);
+    const resolved = path.resolve(scriptPath);
+    return fs.existsSync(resolved) ? resolved : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function spawnCodex(command, args, extra = {}) {
+  const script = codexScript(command);
+  if (script) {
+    return spawn('node.exe', [script, ...args], codexSpawnOptions('node.exe', extra));
+  }
+  return spawn(command, args, codexSpawnOptions(command, extra));
+}
+
 function safeSend(sender, channel, payload) {
   try {
     if (sender && !sender.isDestroyed()) sender.send(channel, payload);
@@ -120,10 +142,10 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
 
   return new Promise((resolve, reject) => {
     const command = codexCommand();
-    const child = spawn(command, args, codexSpawnOptions(command, {
+    const child = spawnCodex(command, args, {
       cwd: rootPath,
       stdio: ['pipe', 'pipe', 'pipe'],
-    }));
+    });
 
     const run = { child, tempDir, settled: false, timer: null, reject };
     activeRuns.set(runId, run);
@@ -415,9 +437,9 @@ ipcMain.handle('deck:data-path', () => dataFile());
 
 ipcMain.handle('codex:check', () => new Promise(resolve => {
   const command = codexCommand();
-  const child = spawn(command, ['--version'], codexSpawnOptions(command, {
+  const child = spawnCodex(command, ['--version'], {
     stdio: ['ignore', 'pipe', 'pipe'],
-  }));
+  });
   let output = '';
   let error = '';
   child.stdout.on('data', chunk => { output += String(chunk); });
