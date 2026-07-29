@@ -17,6 +17,7 @@ const MAX_CONTENT_BUDGET_CHARS = 100000;
 const IGNORED_DIRS = new Set([
   '.git', '.hg', '.svn', 'node_modules', 'vendor', 'dist', 'build',
   'coverage', 'target', '.venv', '.next', '.nuxt', '.turbo', 'out',
+  '.codex', '.zed', '.vscode', '.idea',
 ]);
 
 const SECRET_FILE_RE = /(^|\/)(\.env(?:\..*)?|credentials?\..*|secrets?\..*)$|\.(pem|key|p12|pfx|keystore)$/i;
@@ -51,7 +52,7 @@ function codexSpawnOptions(command, extra = {}) {
     ...extra,
     env: { ...process.env },
     windowsHide: true,
-    shell: process.platform === 'win32' && /\.(cmd|bat)$/i.test(command),
+    shell: false,
   };
 }
 
@@ -73,6 +74,12 @@ function spawnCodex(command, args, extra = {}) {
   const script = codexScript(command);
   if (script) {
     return spawn('node.exe', [script, ...args], codexSpawnOptions('node.exe', extra));
+  }
+  if (process.platform === 'win32' && /\.(cmd|bat)$/i.test(command)) {
+    // Node cannot execute batch launchers with shell:false. Run the launcher
+    // through cmd.exe while keeping every argument as a separate argv item;
+    // this preserves project paths that contain spaces or special characters.
+    return spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', 'call', command, ...args], codexSpawnOptions('cmd.exe', extra));
   }
   return spawn(command, args, codexSpawnOptions(command, extra));
 }

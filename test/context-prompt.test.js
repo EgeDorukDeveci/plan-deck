@@ -68,7 +68,15 @@ test('Luna compatibility failures explain that Codex must be updated', () => {
 test('Codex CMD launchers bypass the shell for project paths with spaces', () => {
   assert.match(source, /function codexScript\(command\)/);
   assert.match(source, /spawn\('node\.exe', \[script, \.\.\.args\]/);
+  assert.match(source, /shell: false/);
+  assert.match(source, /spawn\(process\.env\.ComSpec \|\| 'cmd\.exe'/);
   assert.match(source, /spawnCodex\(command, args,/);
+});
+
+test('project scanning ignores editor and agent metadata folders', () => {
+  for (const directory of ['.codex', '.zed', '.vscode', '.idea']) {
+    assert.match(source, new RegExp(`['"]${directory}['"]`));
+  }
 });
 
 test('context schema requires structured agent-ready sections', () => {
