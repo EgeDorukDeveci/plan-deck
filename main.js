@@ -13,6 +13,7 @@ const MAX_FILES = 5000;
 const MAX_MANIFEST_CHARS = 180000;
 const MAX_FILE_CONTENT_CHARS = 8000;
 const MAX_CONTENT_BUDGET_CHARS = 100000;
+const CODEX_TIMEOUT_MS = 15 * 60 * 1000;
 
 const IGNORED_DIRS = new Set([
   '.git', '.hg', '.svn', 'node_modules', 'vendor', 'dist', 'build',
@@ -192,8 +193,8 @@ function runCodex({ sender, rootPath, model, reasoning, prompt, schema }) {
 
     run.timer = setTimeout(() => {
       try { child.kill(); } catch (_) {}
-      finish(new Error('Codex timed out after five minutes. You can retry this run.'));
-    }, 5 * 60 * 1000);
+      finish(new Error('Codex timed out after fifteen minutes. You can retry this run.'));
+    }, CODEX_TIMEOUT_MS);
 
     child.on('error', err => finish(new Error(normalizeError(err))));
     child.stdin.on('error', err => { stdinError = err; });

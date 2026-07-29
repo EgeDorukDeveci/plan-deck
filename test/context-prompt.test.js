@@ -53,6 +53,12 @@ test('Codex stdin errors settle the run instead of crashing Electron', () => {
   assert.match(source, /if \(stdinError\) \{/);
 });
 
+test('Codex runs allow up to fifteen minutes for large projects', () => {
+  assert.match(source, /const CODEX_TIMEOUT_MS = 15 \* 60 \* 1000/);
+  assert.match(source, /Codex timed out after fifteen minutes/);
+  assert.doesNotMatch(source, /Codex timed out after five minutes/);
+});
+
 const normalizeMatch = source.match(/function normalizeError\(err, fallback = 'Codex could not complete the run\.'\) \{[\s\S]*?\n\}\n\nfunction parseJsonOutput/);
 if (!normalizeMatch) throw new Error('Could not load normalizeError from main.js.');
 const errorContext = {};
