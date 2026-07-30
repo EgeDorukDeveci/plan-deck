@@ -19,7 +19,8 @@ vm.runInNewContext(match[0].replace('\n\nfunction promptGenerationInput', ''), c
 test('context prompt produces an agent-ready technical brief', () => {
   const prompt = context.contextPrompt({ includedFiles: [] });
 
-  assert.match(prompt, /manifest and samples/i);
+  assert.match(prompt, /root README/i);
+  assert.match(prompt, /README content may be stale/i);
   assert.match(prompt, /do not infer behavior from filenames alone/i);
   assert.match(prompt, /detailed, factual project context/i);
   assert.match(prompt, /projectMap with exact relative paths/i);
@@ -28,6 +29,23 @@ test('context prompt produces an agent-ready technical brief', () => {
   assert.match(prompt, /dataFlows/);
   assert.match(prompt, /changeGuide/);
   assert.match(prompt, /--- src\/nested\/feature.js ---/);
+});
+
+test('context content prioritizes root README and project manifests', () => {
+  const priorityMatch = source.match(/const CONTEXT_MANIFEST_FILES[\s\S]*?\n\nfunction compactFileContents/);
+  if (!priorityMatch) throw new Error('Could not load context file ordering helpers.');
+  const priorityContext = {};
+  vm.runInNewContext(priorityMatch[0].replace('\n\nfunction compactFileContents', ''), priorityContext);
+  const ordered = priorityContext.orderedContextFiles([
+    { path: 'src/index.js', bytes: 10 },
+    { path: 'README.md', bytes: 10 },
+    { path: 'package.json', bytes: 10 },
+    { path: 'docs/README.md', bytes: 10 },
+    { path: 'src/package.json', bytes: 10 },
+  ]);
+  assert.equal(ordered.map(file => file.path).join('|'), 'README.md|package.json|docs/README.md|src/package.json|src/index.js');
+  assert.match(source, /Start by checking whether the repository has a root README file/);
+  assert.match(source, /README content may be stale/);
 });
 
 test('Prompt Studio uses Luna with high reasoning for both stages', () => {

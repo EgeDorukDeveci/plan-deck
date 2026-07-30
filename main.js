@@ -313,12 +313,38 @@ function compactManifest(inventory) {
   return text.length > MAX_MANIFEST_CHARS ? `${text.slice(0, MAX_MANIFEST_CHARS)}\n[manifest truncated]` : text;
 }
 
+
+const CONTEXT_MANIFEST_FILES = new Set([
+  'package.json', 'pyproject.toml', 'requirements.txt', 'requirements-dev.txt',
+  'cargo.toml', 'go.mod', 'pom.xml', 'build.gradle', 'composer.json',
+  'gemfile', 'mix.exs', 'pubspec.yaml', 'deno.json', 'deno.jsonc',
+  'vite.config.js', 'vite.config.ts', 'next.config.js', 'next.config.ts',
+]);
+
+function contextFilePriority(file) {
+  const normalized = String(file.path || '').toLowerCase();
+  const base = normalized.split('/').pop();
+  const isRootFile = !normalized.includes('/');
+  if (isRootFile && /^readme(?:\.[^/]+)?$/.test(base)) return 0;
+  if (isRootFile && CONTEXT_MANIFEST_FILES.has(base)) return 1;
+  if (/^readme(?:\.[^/]+)?$/.test(base)) return 2;
+  if (CONTEXT_MANIFEST_FILES.has(base)) return 3;
+  return 4;
+}
+
+function orderedContextFiles(files) {
+  return [...files].sort((a, b) => {
+    const priorityDifference = contextFilePriority(a) - contextFilePriority(b);
+    return priorityDifference || a.path.localeCompare(b.path);
+  });
+}
+
 function compactFileContents(inventory) {
   let budget = MAX_CONTENT_BUDGET_CHARS;
   const root = inventory.rootPath;
   const parts = [];
 
-  for (const file of inventory.includedFiles) {
+  for (const file of orderedContextFiles(inventory.includedFiles)) {
     if (budget <= 0) break;
     const fullPath = path.join(root, file.path);
     let content;
@@ -459,7 +485,7 @@ function contextPrompt(inventory) {
 
 Read the repository files below and produce a detailed, factual project context for a later coding-agent prompt. Do not modify files, run destructive commands, or reveal secret values. Do not read or quote sensitive files such as .env files, private keys, certificates, credentials, or secrets.
 
-The manifest and samples are only a starting point. Before writing the JSON, use read-only shell tools to read the complete contents of entry points, configuration files, and files that implement the main systems. If a sampled file is marked as truncated, read the complete contents before using it for any fact. Do not infer behavior from filenames alone.
+Start by checking whether the repository has a root README file. If present, read it first as orientation, then verify its claims against the actual code and configuration; README content may be stale. Next inspect root project manifests such as package.json, pyproject.toml, Cargo.toml, go.mod, or equivalent. Then use read-only shell tools to read the complete contents of entry points, configuration files, and files that implement the main systems. If a sampled file is marked as truncated, read the complete contents before using it for any fact. Do not infer behavior from filenames alone, and do not treat README claims as verified until the code supports them.
 
 Return only the JSON object required by the supplied schema. Populate projectMap with exact relative paths, a concise purpose, and important exported symbols or responsibilities. Populate systems with cohesive runtime areas, their files, dependencies, and integration boundaries. Populate dataFlows with concrete triggers, ordered execution steps, and the exact files involved. Populate configuration with verified config files, keys, and runtime effects. Populate changeGuide with implementation areas, likely files, and risks. Populate verification with verified commands, known coverage, and gaps. Keep the summary compact, but make architecture and conventions specific enough for a later agent to understand how the project works. If a fact cannot be verified, use openQuestions instead of guessing.
 
